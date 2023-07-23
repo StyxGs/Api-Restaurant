@@ -1,7 +1,8 @@
+import uvicorn
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from src.api import dependencies
+from src.api import dependencies, routers
 from src.api.main_factory import create_app
 from src.common.congif.db import load_db_config
 from src.infrastructure.db.factory import create_pool
@@ -11,10 +12,13 @@ def main() -> FastAPI:
     app: FastAPI = create_app()
     pool: async_sessionmaker[AsyncSession] = create_pool(load_db_config())
     dependencies.setup(app=app, pool=pool)
+    routers.setup(app.router)
+    return app
 
 
 def run():
-    pass
+    app = main()
+    uvicorn.run(app)
 
 
 if __name__ == '__main__':

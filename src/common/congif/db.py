@@ -3,6 +3,7 @@ from src.infrastructure.db.congif.moleds.db import DBConfig
 
 def load_data_db() -> dict:
     import os
+
     from dotenv import load_dotenv
     dotenv_path_test = os.path.join(os.path.dirname(__file__), '../../../config_env/.env')
     load_dotenv(dotenv_path=dotenv_path_test)

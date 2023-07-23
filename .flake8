@@ -1,0 +1,8 @@
+[flake8]
+exclude =
+    migrations
+    __pycache__
+    .env
+    .gitignore
+    .dockerignore
+max-line-length = 120

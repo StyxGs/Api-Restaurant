@@ -1,6 +1,6 @@
-from src.infrastructure.db.dao.rbd.base import BaseDAO
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.infrastructure.db.dao.rbd.base import BaseDAO
 from src.infrastructure.db.models.submenu import SubMenu
 
 
