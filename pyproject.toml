@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "y-lab"
+version = "0.1.0"
+description = ""
+authors = ["Georgy Sychev <lvl_slep@mail.ru>"]
+readme = "README.md"
+packages = [{include = "y_lab"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.0"
+uvicorn = "^0.23.1"
+sqlalchemy = "^2.0.19"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
