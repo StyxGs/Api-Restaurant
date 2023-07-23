@@ -14,13 +14,15 @@ async def service_create_menu(dto: MenuDTO, dao: MenuDAO):
 
 async def service_get_menus(dao: MenuDAO):
     result: list[tuple] = await dao.get_list_menus()
-    return result
+    return [MenuDTO(id=menu[0], title=menu[1], description=menu[2], submenus_count=menu[3], dishes_count=menu[4]) for
+            menu in result]
 
 
 async def service_get_menu(menu_id: UUID, dao: MenuDAO):
     result: tuple = await dao.get_menu(menu_id)
     await not_found(result, 'menu not found')
-    return result
+    return MenuDTO(id=result[0], title=result[1], description=result[2], submenus_count=result[3],
+                   dishes_count=result[4])
 
 
 async def service_update_menu(dto: MenuDTO, menu_id: UUID, dao: MenuDAO):
@@ -28,7 +30,7 @@ async def service_update_menu(dto: MenuDTO, menu_id: UUID, dao: MenuDAO):
     await not_found(result, 'menu not found')
     await dao.commit()
     menu: tuple = await dao.get_menu(menu_id)
-    return menu
+    return MenuDTO(id=menu[0], title=menu[1], description=menu[2], submenus_count=menu[3], dishes_count=menu[4])
 
 
 async def service_delete_menu(menu_id: UUID, dao: MenuDAO):

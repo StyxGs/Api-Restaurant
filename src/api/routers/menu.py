@@ -32,10 +32,12 @@ async def delete_menu(menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
 
 
 def setup(router: APIRouter):
-    router.add_api_route('/api/v1/menus', create_menu_router, response_model=PyMenu, methods=['POST'], status_code=201)
-    router.add_api_route('/api/v1/menus', get_list_menus, response_model=list[PyMenu], methods=['GET'], status_code=200)
-    router.add_api_route('/api/v1/menus/{menu_id}', get_specific_menu, response_model=PyMenu, methods=['GET'],
-                         status_code=200)
-    router.add_api_route('/api/v1/menus/{menu_id}', update_menu, response_model=PyMenu, methods=['PATCH'],
-                         status_code=200)
-    router.add_api_route('/api/v1/menus/{menu_id}', delete_menu, methods=['DELETE'], status_code=200)
+    router.add_api_route('/menus', create_menu_router, response_model=PyMenu, methods=['POST'], status_code=201,
+                         tags=['Menu'])
+    router.add_api_route('/menus', get_list_menus, response_model=list[PyMenu], methods=['GET'], status_code=200,
+                         tags=['Menu'])
+    router.add_api_route('/menus/{menu_id}', get_specific_menu, response_model=PyMenu, methods=['GET'],
+                         status_code=200, tags=['Menu'])
+    router.add_api_route('/menus/{menu_id}', update_menu, response_model=PyMenu, methods=['PATCH'],
+                         status_code=200, tags=['Menu'])
+    router.add_api_route('/menus/{menu_id}', delete_menu, methods=['DELETE'], status_code=200, tags=['Menu'])

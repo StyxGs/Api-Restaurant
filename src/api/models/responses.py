@@ -17,4 +17,4 @@ class PySubMenu(Base):
     id: UUID
     title: str
     description: str
-    dishes_count: int
+    dishes_count: int = Field(default=0)
