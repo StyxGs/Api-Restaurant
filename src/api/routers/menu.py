@@ -11,7 +11,7 @@ from src.core.services.menu import (service_create_menu, service_delete_menu,
 from src.infrastructure.db.dao.holder import HolderDAO
 
 
-async def create_menu_router(menu: RQSTMenu, dao: HolderDAO = Depends(dao_provider)):
+async def create_menu(menu: RQSTMenu, dao: HolderDAO = Depends(dao_provider)):
     return await service_create_menu(dto=menu.to_dto(), dao=dao.menu)
 
 
@@ -32,7 +32,7 @@ async def delete_menu(menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
 
 
 def setup(router: APIRouter):
-    router.add_api_route('/menus', create_menu_router, response_model=PyMenu, methods=['POST'], status_code=201,
+    router.add_api_route('/menus', create_menu, response_model=PyMenu, methods=['POST'], status_code=201,
                          tags=['Menu'])
     router.add_api_route('/menus', get_list_menus, response_model=list[PyMenu], methods=['GET'], status_code=200,
                          tags=['Menu'])

@@ -18,3 +18,10 @@ class PySubMenu(Base):
     title: str
     description: str
     dishes_count: int = Field(default=0)
+
+
+class PyDish(Base):
+    id: UUID
+    title: str
+    description: str
+    price: str

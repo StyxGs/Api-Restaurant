@@ -13,7 +13,7 @@ class Dish(Base):
     title: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String)
     price: Mapped[str] = mapped_column(String(10))
-    submenu_id: Mapped[UUID] = mapped_column(ForeignKey('submenu.id'))
+    submenu_id: Mapped[UUID] = mapped_column(ForeignKey('submenu.id', ondelete='CASCADE'))
 
     def __repr__(self) -> str:
         return f'Dish(id={self.id!r}, title={self.title!r}, price={self.price!r})'

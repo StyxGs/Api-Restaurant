@@ -13,7 +13,7 @@ class SubMenu(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4, nullable=False)
     title: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String)
-    menu_id: Mapped[UUID] = mapped_column(ForeignKey('menu.id'))
+    menu_id: Mapped[UUID] = mapped_column(ForeignKey('menu.id', ondelete='CASCADE'))
     dishes: Mapped[list['Dish']] = relationship(cascade='all, delete')
 
     def __repr__(self) -> str:

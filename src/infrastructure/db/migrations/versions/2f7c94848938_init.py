@@ -1,16 +1,15 @@
-"""empty message
+"""init
 
-Revision ID: 5c47dd84e486
+Revision ID: 2f7c94848938
 Revises: 
-Create Date: 2023-07-23 21:41:56.906455
+Create Date: 2023-07-24 00:47:02.813252
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '5c47dd84e486'
+revision = '2f7c94848938'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,7 +28,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(length=150), nullable=False),
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('menu_id', sa.Uuid(), nullable=False),
-    sa.ForeignKeyConstraint(['menu_id'], ['menu.id'], ),
+    sa.ForeignKeyConstraint(['menu_id'], ['menu.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('title')
     )
@@ -39,7 +38,7 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('price', sa.String(length=10), nullable=False),
     sa.Column('submenu_id', sa.Uuid(), nullable=False),
-    sa.ForeignKeyConstraint(['submenu_id'], ['submenu.id'], ),
+    sa.ForeignKeyConstraint(['submenu_id'], ['submenu.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('title')
     )
