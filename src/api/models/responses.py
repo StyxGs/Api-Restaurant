@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from src.api.models.base import Base
 
@@ -25,3 +25,8 @@ class PyDish(Base):
     title: str
     description: str
     price: str
+
+    @field_validator('price')
+    def validate_birth_date(cls, correct_price):
+        correct_price = str(round(float(correct_price), 2))
+        return correct_price

@@ -20,14 +20,16 @@ class MenuDAO(BaseDAO):
 
     async def get_list(self):
         result = await self.session.execute(
-            select(Menu.id, Menu.title, Menu.description, func.count(SubMenu.id), func.count(Dish.id)).outerjoin(
+            select(Menu.id, Menu.title, Menu.description, func.count(distinct(SubMenu.id)),
+                   func.count(distinct(Dish.id))).outerjoin(
                 Menu.submenu).outerjoin(
                 SubMenu.dishes).group_by(Menu.id))
         return result.all()
 
     async def get_one(self, menu_id: UUID):
         result = await self.session.execute(
-            select(Menu.id, Menu.title, Menu.description, func.count(distinct(SubMenu.id)), func.count(distinct(Dish.id))).outerjoin(
+            select(Menu.id, Menu.title, Menu.description, func.count(distinct(SubMenu.id)),
+                   func.count(distinct(Dish.id))).outerjoin(
                 Menu.submenu).outerjoin(
                 SubMenu.dishes).filter(Menu.id == menu_id).group_by(Menu.id, SubMenu.id))
         return result.first()

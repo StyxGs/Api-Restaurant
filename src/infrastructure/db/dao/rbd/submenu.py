@@ -27,9 +27,8 @@ class SubMenuDAO(BaseDAO):
 
     async def get_one(self, submenu_id: UUID, menu_id: UUID):
         result = await self.session.execute(
-            select(SubMenu.id, SubMenu.title, SubMenu.description, func.count(distinct(Dish.id))).outerjoin(
-                SubMenu.dishes).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).group_by(SubMenu.id,
-                                                                                                      Dish.id))
+            select(SubMenu.id, SubMenu.title, SubMenu.description, func.count(Dish.id)).outerjoin(
+                SubMenu.dishes).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).group_by(SubMenu.id))
         return result.first()
 
     async def update(self, data: dict, submenu_id: UUID, menu_id: UUID):

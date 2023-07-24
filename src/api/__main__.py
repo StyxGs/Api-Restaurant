@@ -1,4 +1,3 @@
-import uvicorn
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -18,10 +17,4 @@ def main() -> FastAPI:
     return app
 
 
-def run():
-    app = main()
-    uvicorn.run(app)
-
-
-if __name__ == '__main__':
-    run()
+app = main()

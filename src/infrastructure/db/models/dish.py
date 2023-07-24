@@ -12,7 +12,7 @@ class Dish(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4, nullable=False)
     title: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String)
-    price: Mapped[str] = mapped_column(String(10))
+    price: Mapped[str] = mapped_column(String)
     submenu_id: Mapped[UUID] = mapped_column(ForeignKey('submenu.id', ondelete='CASCADE'))
 
     def __repr__(self) -> str:
