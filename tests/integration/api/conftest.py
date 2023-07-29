@@ -11,6 +11,7 @@ from src.api import routers as setup_routers
 from src.api.main_factory import create_app
 from src.infrastructure.db import models
 from tests.fixtures.menu import get_test_menu
+from tests.fixtures.submenu import get_test_submenu
 
 
 @pytest.fixture(scope='session')

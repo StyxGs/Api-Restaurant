@@ -7,4 +7,4 @@ async def not_found(result, detail):
 
 
 async def exists():
-    raise HTTPException(status_code=400, detail='already exists')
+    raise HTTPException(status_code=400, detail='submenu already exists or menu not exists')

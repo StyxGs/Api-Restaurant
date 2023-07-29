@@ -2,5 +2,4 @@ from pydantic import BaseModel
 
 
 class Base(BaseModel):
-    class Config:
-        from_attributes = True
+    model_config = {'from_attributes': True}
