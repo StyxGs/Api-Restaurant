@@ -6,7 +6,7 @@ authors = ["Georgy Sychev <lvl_slep@mail.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 fastapi = "^0.100.0"
 uvicorn = "^0.23.1"
 sqlalchemy = "^2.0.19"

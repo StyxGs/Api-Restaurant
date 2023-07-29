@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import field_validator, Field
 
 from src.api.models.base import Base
 from src.core.models.dto.dish import DishDTO
@@ -24,7 +24,7 @@ class RQSTSubMenu(BaseMenuAndSubmenu):
 
 
 class RQSTDish(BaseMenuAndSubmenu):
-    price: str
+    price: str = Field(examples=['14.45', ])
 
     @field_validator('price')
     def validate_birth_date(cls, correct_price):

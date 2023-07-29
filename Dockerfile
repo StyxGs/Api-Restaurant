@@ -1,4 +1,4 @@
-FROM python:3.11-alpine3.18
+FROM python:3.10-slim
 RUN pip install poetry
 WORKDIR /task
 COPY poetry.lock pyproject.toml /task/

@@ -1,30 +1,27 @@
 from uuid import UUID
 
-from pydantic import Field, field_validator
+from pydantic import field_validator, Field
 
 from src.api.models.base import Base
 
 
-class PyMenu(Base):
+class BaseResponse(Base):
     id: UUID
     title: str
     description: str
-    submenus_count: int = Field(default=0)
-    dishes_count: int = Field(default=0)
 
 
-class PySubMenu(Base):
-    id: UUID
-    title: str
-    description: str
-    dishes_count: int = Field(default=0)
+class PyMenu(BaseResponse):
+    submenus_count: int = 0
+    dishes_count: int = 0
 
 
-class PyDish(Base):
-    id: UUID
-    title: str
-    description: str
-    price: str
+class PySubMenu(BaseResponse):
+    dishes_count: int = 0
+
+
+class PyDish(BaseResponse):
+    price: str = Field(examples=['14.45', ])
 
     @field_validator('price')
     def validate_birth_date(cls, correct_price):

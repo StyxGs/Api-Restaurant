@@ -1,0 +1,6 @@
+.flake8
+README.md
+.gitignore
+__pycache__/
+.idea/
+.pytest_cache/

@@ -8,18 +8,18 @@ from src.infrastructure.db.dao.rbd.submenu import SubMenuDAO
 from src.infrastructure.db.models import SubMenu
 
 
-async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO):
+async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO) -> SubMenu:
     try:
         data: dict = dto.get_data
         data['menu_id'] = menu_id
-        result: SubMenu = await dao.create(data)
+        result: SubMenu = await dao.create(data, SubMenu)
         await dao.commit()
         return result
     except IntegrityError:
         await exists()
 
 
-async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO):
+async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO) -> list[SubMenuDTO]:
     result: list[tuple] = await dao.get_list(menu_id)
     if not result[0][0]:
         return []
@@ -27,13 +27,13 @@ async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO):
             menu in result]
 
 
-async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO):
+async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO) -> SubMenuDTO:
     result: tuple = await dao.get_one(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     return SubMenuDTO(id=result[0], title=result[1], description=result[2], dishes_count=result[3])
 
 
-async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO):
+async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO) -> SubMenuDTO:
     result: tuple = await dao.update(dto.get_data, submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     await dao.commit()
@@ -41,7 +41,7 @@ async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUI
     return SubMenuDTO(id=submenu[0], title=submenu[1], description=submenu[2], dishes_count=submenu[3])
 
 
-async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO):
+async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO) -> dict:
     result = await dao.delete(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     await dao.commit()

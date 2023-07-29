@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from sqlalchemy import Delete, Update, delete, distinct, func, select, update
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.db.dao.rbd.base import BaseDAO
@@ -13,10 +12,6 @@ class MenuDAO(BaseDAO):
 
     def __init__(self, session: AsyncSession):
         super().__init__(Menu, session)
-
-    async def create(self, data: dict):
-        result = await self.session.scalars(insert(Menu).values(data).returning(Menu))
-        return result.first()
 
     async def get_list(self):
         result = await self.session.execute(
