@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import field_validator, Field
+from pydantic import Field, field_validator
 
 from src.api.models.base import Base
 

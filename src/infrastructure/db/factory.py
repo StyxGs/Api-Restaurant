@@ -5,7 +5,7 @@ from src.infrastructure.db.congif.moleds.db import DBConfig
 
 
 def create_pool(db_config: DBConfig) -> async_sessionmaker[AsyncSession]:
-    engine: AsyncSession = create_engine(db_config)
+    engine: AsyncEngine = create_engine(db_config)
     return create_session_marker(engine=engine)
 
 

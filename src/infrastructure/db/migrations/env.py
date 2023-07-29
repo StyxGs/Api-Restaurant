@@ -3,19 +3,20 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from src.common.congif.db import load_data_db
+from src.common.congif.db import load_db_config
 from src.infrastructure.db import models
+from src.infrastructure.db.congif.moleds.db import DBConfig
 
-db_data: dict = load_data_db()
+db_data: DBConfig = load_db_config()
 
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, 'user', db_data['user'])
-config.set_section_option(section, 'pass', db_data['password'])
-config.set_section_option(section, 'host', db_data['host'])
-config.set_section_option(section, 'port', db_data['port'])
-config.set_section_option(section, 'name', db_data['name'])
+config.set_section_option(section, 'user', db_data.user)
+config.set_section_option(section, 'pass', db_data.password)
+config.set_section_option(section, 'host', db_data.host)
+config.set_section_option(section, 'port', db_data.port)
+config.set_section_option(section, 'name', db_data.name)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
