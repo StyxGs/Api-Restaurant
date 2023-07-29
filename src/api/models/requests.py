@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import Field, field_validator
 
 from src.api.models.base import Base
@@ -33,3 +35,19 @@ class RQSTDish(BaseMenuAndSubmenu):
 
     def to_dto(self):
         return DishDTO(title=self.title, description=self.description, price=self.price)
+
+
+class RQSTDishUpdate(RQSTDish):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[str] = Field(examples=['14.45', ], default=None)
+
+
+class RQSTMenuUpdate(RQSTMenu):
+    title: Optional[str] = None
+    description: Optional[str] = None
+
+
+class RQSTSubMenuUpdate(RQSTSubMenu):
+    title: Optional[str] = None
+    description: Optional[str] = None

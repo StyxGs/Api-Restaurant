@@ -5,8 +5,8 @@ from httpx import AsyncClient
 
 
 async def test_get_specific_submenu(get_test_submenu: dict, client: AsyncClient):
-    menu_id = get_test_submenu['menu_id']
-    submenu = get_test_submenu['submenu']
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
     result = await client.get(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}')
     assert result.status_code == 200
     assert loads(result.content) == submenu
@@ -16,23 +16,23 @@ async def test_create_submenu(get_test_menu: dict, client: AsyncClient):
     result = await client.post(f'/api/v1/menus/{get_test_menu["id"]}/submenus',
                                json={'title': 'my_submenu_1_test', 'description': 'description_test'})
     assert result.status_code == 201
-    submenu = loads(result.content)
+    submenu: dict = loads(result.content)
     submenu_api = await client.get(f'/api/v1/menus/{get_test_menu["id"]}/submenus/{submenu["id"]}')
     assert submenu_api.status_code == 200
     assert loads(submenu_api.content) == submenu
 
 
 async def test_get_list_submenus(get_test_submenu: dict, client: AsyncClient):
-    menu_id = get_test_submenu['menu_id']
-    submenu = get_test_submenu['submenu']
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
     result = await client.get(f'/api/v1/menus/{menu_id}/submenus')
     assert result.status_code == 200
     assert loads(result.content) == [submenu]
 
 
 async def test_update_submenu(get_test_submenu: dict, client: AsyncClient):
-    menu_id = get_test_submenu['menu_id']
-    submenu = get_test_submenu['submenu']
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
     result = await client.patch(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}',
                                 json={'title': 'update submenu title', 'description': 'update submenu description'})
     assert result.status_code == 200
@@ -42,8 +42,8 @@ async def test_update_submenu(get_test_submenu: dict, client: AsyncClient):
 
 
 async def test_delete_submenu(get_test_submenu: dict, client: AsyncClient):
-    menu_id = get_test_submenu['menu_id']
-    submenu = get_test_submenu['submenu']
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
     result_delete = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}')
     assert result_delete.status_code == 200
     result_get = await client.get(f'/api/v1/menus/{menu_id}/submenus')

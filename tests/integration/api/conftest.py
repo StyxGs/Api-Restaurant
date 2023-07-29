@@ -12,6 +12,7 @@ from src.api.main_factory import create_app
 from src.infrastructure.db import models
 from tests.fixtures.menu import get_test_menu
 from tests.fixtures.submenu import get_test_submenu
+from tests.fixtures.dish import get_test_dish
 
 
 @pytest.fixture(scope='session')

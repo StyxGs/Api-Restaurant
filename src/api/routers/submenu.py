@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import dao_provider
-from src.api.models.requests import RQSTSubMenu
+from src.api.models.requests import RQSTSubMenu, RQSTSubMenuUpdate
 from src.api.models.responses import PySubMenu
 from src.core.services.submenu import (service_create_submenu,
                                        service_delete_submenu,
@@ -25,7 +25,8 @@ async def get_specific_submenu(menu_id: UUID, submenu_id: UUID, dao: HolderDAO =
     return await service_get_submenu(submenu_id=submenu_id, menu_id=menu_id, dao=dao.submenu)
 
 
-async def update_submenu(menu_id: UUID, submenu: RQSTSubMenu, submenu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
+async def update_submenu(menu_id: UUID, submenu: RQSTSubMenuUpdate, submenu_id: UUID,
+                         dao: HolderDAO = Depends(dao_provider)):
     return await service_update_submenu(dto=submenu.to_dto(), submenu_id=submenu_id, menu_id=menu_id, dao=dao.submenu)
 
 

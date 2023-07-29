@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies import dao_provider
-from src.api.models.requests import RQSTMenu
+from src.api.models.requests import RQSTMenu, RQSTMenuUpdate
 from src.api.models.responses import PyMenu
 from src.core.services.menu import (service_create_menu, service_delete_menu,
                                     service_get_menu, service_get_menus,
@@ -23,7 +23,7 @@ async def get_specific_menu(menu_id: UUID, dao: HolderDAO = Depends(dao_provider
     return await service_get_menu(menu_id=menu_id, dao=dao.menu)
 
 
-async def update_menu(menu: RQSTMenu, menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
+async def update_menu(menu: RQSTMenuUpdate, menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
     return await service_update_menu(dto=menu.to_dto(), menu_id=menu_id, dao=dao.menu)
 
 

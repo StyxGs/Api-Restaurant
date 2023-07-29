@@ -3,9 +3,10 @@ from dataclasses import dataclass
 
 @dataclass
 class BaseDTO:
-    title: str
-    description: str
+    title: str | None = None
+    description: str | None = None
 
     @property
     def get_data(self):
-        return dict(title=self.title, description=self.description)
+        dto = dict(title=self.title, description=self.description)
+        return {name: data for name, data in dto.items() if data}

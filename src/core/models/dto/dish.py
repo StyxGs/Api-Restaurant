@@ -11,4 +11,5 @@ class DishDTO(BaseDTO):
 
     @property
     def get_data(self):
-        return dict(title=self.title, description=self.description, price=self.price)
+        dto = dict(title=self.title, description=self.description, price=self.price)
+        return {name: data for name, data in dto.items() if data}
