@@ -13,7 +13,7 @@ async def test_get_specific_menu(get_test_menu: dict, client: AsyncClient):
 async def test_create_menu(client: AsyncClient):
     result = await client.post('/api/v1/menus', json={'title': 'my_menu_1_test', 'description': 'description_test'})
     assert result.status_code == 201
-    menu = loads(result.content)
+    menu: dict = loads(result.content)
     menu_api = await client.get(f'/api/v1/menus/{menu["id"]}')
     assert menu_api.status_code == 200
     assert loads(menu_api.content) == menu
@@ -37,6 +37,7 @@ async def test_update_menu(get_test_menu: dict, client: AsyncClient):
 async def test_delete_menu(get_test_menu: dict, client: AsyncClient):
     result_delete = await client.delete(f'/api/v1/menus/{get_test_menu["id"]}')
     assert result_delete.status_code == 200
+    assert loads(result_delete.content) == {'status': True, 'message': 'The menu has been deleted'}
     result_get = await client.get('/api/v1/menus')
     assert result_get.status_code == 200
     assert loads(result_get.content) == []

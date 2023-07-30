@@ -45,4 +45,4 @@ async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDA
     result = await dao.delete(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     await dao.commit()
-    return {'status': True, 'message': 'The menu has been deleted'}
+    return {'status': True, 'message': 'The submenu has been deleted'}

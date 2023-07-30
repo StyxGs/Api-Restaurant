@@ -53,6 +53,7 @@ async def test_delete_dish(get_test_dish: dict, client: AsyncClient):
     dish: dict = get_test_dish['dish']
     result_delete = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish["id"]}')
     assert result_delete.status_code == 200
+    assert loads(result_delete.content) == {'status': True, 'message': 'The dish has been deleted'}
     result_get = await client.get(f'/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
     assert result_get.status_code == 200
     assert loads(result_get.content) == []

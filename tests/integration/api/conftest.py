@@ -22,13 +22,18 @@ def event_loop(request):
     loop.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope='class', autouse=True)
 async def prepare_database(engine: AsyncEngine):
     async with engine.begin() as coon:
         await coon.run_sync(models.Base.metadata.create_all)
     yield
     async with engine.begin() as coon:
         await coon.run_sync(models.Base.metadata.drop_all)
+
+
+@pytest.fixture(scope='class')
+async def data():
+    return {}
 
 
 @pytest.fixture(scope='session')

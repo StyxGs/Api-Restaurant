@@ -46,6 +46,7 @@ async def test_delete_submenu(get_test_submenu: dict, client: AsyncClient):
     submenu: dict = get_test_submenu['submenu']
     result_delete = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}')
     assert result_delete.status_code == 200
+    assert loads(result_delete.content) == {'status': True, 'message': 'The submenu has been deleted'}
     result = await client.get(f'/api/v1/menus/{menu_id}/submenus')
     assert result.status_code == 200
     assert loads(result.content) == []

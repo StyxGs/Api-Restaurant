@@ -25,7 +25,8 @@ async def get_specific_dish(menu_id: UUID, submenu_id: UUID, dish_id: UUID, dao:
 
 async def update_dish(menu_id: UUID, dish: RQSTDishUpdate, submenu_id: UUID, dish_id: UUID,
                       dao: HolderDAO = Depends(dao_provider)):
-    return await service_update_dish(dto=dish.to_dto(), menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id, dao=dao.dish)
+    return await service_update_dish(dto=dish.to_dto(), menu_id=menu_id, submenu_id=submenu_id,
+                                     dish_id=dish_id, dao=dao.dish)
 
 
 async def delete_dish(menu_id: UUID, submenu_id: UUID, dish_id: UUID, dao: HolderDAO = Depends(dao_provider)):
