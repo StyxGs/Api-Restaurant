@@ -6,7 +6,7 @@ from src.core.models.dto.submenu import SubMenuDTO
 from src.core.services.menu import service_create_menu
 from src.core.services.submenu import service_create_submenu
 from src.infrastructure.db.dao.holder import HolderDAO
-from src.infrastructure.db.models import SubMenu, Menu
+from src.infrastructure.db.models import Menu, SubMenu
 
 
 @pytest.fixture

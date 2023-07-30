@@ -46,15 +46,9 @@ async def test_delete_submenu(get_test_submenu: dict, client: AsyncClient):
     submenu: dict = get_test_submenu['submenu']
     result_delete = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}')
     assert result_delete.status_code == 200
-    result_get = await client.get(f'/api/v1/menus/{menu_id}/submenus')
-    assert result_get.status_code == 200
-    assert loads(result_get.content) == []
-
-
-async def test_404_get_list_submenus(client: AsyncClient):
-    result = await client.get(f'/api/v1/menus/{str(uuid4())}/submenus')
-    assert result.status_code == 404
-    assert loads(result.content) == {'detail': 'submenu not found'}
+    result = await client.get(f'/api/v1/menus/{menu_id}/submenus')
+    assert result.status_code == 200
+    assert loads(result.content) == []
 
 
 async def test_404_get_specific_submenus(get_test_menu: dict, client: AsyncClient):
@@ -76,8 +70,8 @@ async def test_404_delete_submenu(get_test_menu: dict, client: AsyncClient):
     assert loads(result.content) == {'detail': 'submenu not found'}
 
 
-async def test_404_create_submenu(get_test_menu: dict, client: AsyncClient):
+async def test_400_create_submenu(get_test_menu: dict, client: AsyncClient):
     result = await client.post(f'/api/v1/menus/{str(uuid4())}/submenus',
                                json={'title': 'my_submenu_1_test', 'description': 'description_test'})
     assert result.status_code == 400
-    assert loads(result.content) == {'detail': 'submenu already exists or menu not exists'}
+    assert loads(result.content) == {'detail': 'already exists or not found'}

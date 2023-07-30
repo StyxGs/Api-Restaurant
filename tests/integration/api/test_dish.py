@@ -47,28 +47,44 @@ async def test_update_dish(get_test_dish: dict, client: AsyncClient):
     assert loads(result.content) == dish
 
 
-async def test_delete_dish(get_test_menu: dict, client: AsyncClient):
+async def test_delete_dish(get_test_dish: dict, client: AsyncClient):
+    menu_id: str = get_test_dish['menu_id']
+    submenu_id: str = get_test_dish['submenu_id']
+    dish: dict = get_test_dish['dish']
     result_delete = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish["id"]}')
     assert result_delete.status_code == 200
-    result_get = await client.get('/api/v1/menus')
+    result_get = await client.get(f'/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
     assert result_get.status_code == 200
     assert loads(result_get.content) == []
-#
-#
-# async def test_404_get_specific_dish(client: AsyncClient):
-#     result = await client.get(f'/api/v1/menus/{str(uuid4())}')
-#     assert result.status_code == 404
-#     assert loads(result.content) == {'detail': 'menu not found'}
-#
-#
-# def test_404_update_dish(client: AsyncClient):
-#     result = await client.patch(f'/api/v1/menus/{str(uuid4())}',
-#                                 json={'title': 'update title', 'description': 'update description'})
-#     assert result.status_code == 404
-#     assert loads(result.content) == {'detail': 'menu not found'}
-#
-#
-# async def test_404_delete_dish(client: AsyncClient):
-#     result = await client.delete(f'/api/v1/menus/{str(uuid4())}')
-#     assert result.status_code == 404
-#     assert loads(result.content) == {'detail': 'menu not found'}
+
+
+async def test_404_get_specific_dish(get_test_submenu: dict, client: AsyncClient):
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
+    result = await client.get(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}/dishes/{str(uuid4())}')
+    assert result.status_code == 404
+    assert loads(result.content) == {'detail': 'dish not found'}
+
+
+async def test_404_update_dish(get_test_submenu: dict, client: AsyncClient):
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
+    result = await client.patch(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}/dishes/{str(uuid4())}',
+                                json={'title': 'update title', 'description': 'update description'})
+    assert result.status_code == 404
+    assert loads(result.content) == {'detail': 'dish not found'}
+
+
+async def test_404_delete_dish(get_test_submenu: dict, client: AsyncClient):
+    menu_id: str = get_test_submenu['menu_id']
+    submenu: dict = get_test_submenu['submenu']
+    result = await client.delete(f'/api/v1/menus/{menu_id}/submenus/{submenu["id"]}/dishes/{str(uuid4())}')
+    assert result.status_code == 404
+    assert loads(result.content) == {'detail': 'dish not found'}
+
+
+async def test_400_create_dish(get_test_menu: dict, client: AsyncClient):
+    result = await client.post(f'/api/v1/menus/{get_test_menu["id"]}/submenus/{str(uuid4())}/dishes',
+                               json={'title': 'my_submenu_1_test', 'description': 'description_test', 'price': '14.57'})
+    assert result.status_code == 400
+    assert loads(result.content) == {'detail': 'already exists or not found'}

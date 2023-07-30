@@ -20,14 +20,11 @@ async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO
 
 
 async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO) -> list[SubMenuDTO]:
-    result: list[tuple] = await dao.get_list(menu_id)
-    if result:
-        if not result[0][0]:
-            return []
-        return [SubMenuDTO(id=menu[0], title=menu[1], description=menu[2], dishes_count=menu[3]) for
-                menu in result]
-    else:
-        await not_found(result, 'submenu not found')
+    result: list[tuple] | None = await dao.get_list(menu_id)
+    if result == [(None, None, None, 0)]:
+        return []
+    return [SubMenuDTO(id=menu[0], title=menu[1], description=menu[2], dishes_count=menu[3]) for
+            menu in result]
 
 
 async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO) -> SubMenuDTO:
@@ -48,4 +45,4 @@ async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDA
     result = await dao.delete(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     await dao.commit()
-    return {'status': True, 'message': 'The submenu has been deleted'}
+    return {'status': True, 'message': 'The menu has been deleted'}

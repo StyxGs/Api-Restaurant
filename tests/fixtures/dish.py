@@ -8,7 +8,7 @@ from src.core.services.dish import service_create_dish
 from src.core.services.menu import service_create_menu
 from src.core.services.submenu import service_create_submenu
 from src.infrastructure.db.dao.holder import HolderDAO
-from src.infrastructure.db.models import Menu, SubMenu, Dish
+from src.infrastructure.db.models import Dish, Menu, SubMenu
 
 
 @pytest.fixture

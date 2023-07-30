@@ -20,7 +20,7 @@ async def service_create_dish(menu_id: UUID, submenu_id: UUID, dto: DishDTO, dao
 
 
 async def service_get_dishes(menu_id: UUID, submenu_id: UUID, dao: DishDAO) -> list[tuple]:
-    result: list[tuple] = await dao.get_list(submenu_id)
+    result: list[tuple] | None = await dao.get_list(submenu_id)
     return result
 
 
