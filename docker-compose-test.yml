@@ -2,31 +2,30 @@ version: "3.8"
 
 services:
 
-  api:
+  api_test:
     depends_on:
-      db:
+      db_test:
         condition: service_healthy
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: api
+      dockerfile: Dockerfile_test
+    container_name: api_test
     env_file:
-      - ./config_env/.env
+      - ./tests/config_env/.env
+    entrypoint: sh -c "pytest -v"
     ports:
-      - "8000:80"
+      - "9999:9999"
 
-  db:
+  db_test:
     image: postgres:15.1-alpine
     restart: always
-    container_name: database
+    container_name: database_test
     env_file:
-      - ./config_env/.env
+      - ./tests/config_env/.env
     ports:
-      - "5432:5432"
+      - "5435:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
-
-

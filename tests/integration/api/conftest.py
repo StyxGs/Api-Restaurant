@@ -32,12 +32,12 @@ async def prepare_database(engine: AsyncEngine):
 
 
 @pytest.fixture(scope='class')
-async def data():
+async def data() -> dict:
     return {}
 
 
 @pytest.fixture(scope='session')
-def app(pool: AsyncSession):
+def app(pool: AsyncSession) -> FastAPI:
     app: FastAPI = create_app()
     dependencies.setup(app=app, pool=pool)
     routers = setup_routers.setup()

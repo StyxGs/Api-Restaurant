@@ -1,0 +1,6 @@
+FROM python:3.10-slim
+RUN pip install poetry
+WORKDIR /task_test
+COPY poetry.lock pyproject.toml /task_test/
+RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
+COPY . .
