@@ -33,6 +33,6 @@
 <p>Для тестов я создал отдельный yml файл.</p>
 <ol>
 <li>Перейти в папку куда скопирован проект, там должен находить файл docker-compose-test.yml</li>
-<li>Команда для запуска тестов: docker-compose -f docker_compose_test.yml up -d</li>
-<li>Для того чтобы посмотреть логи о прохождение тестов: docker-compose -f docker_compose_test.yml logs -f api_test</li>
+<li>Команда для запуска тестов: docker-compose -f docker-compose-test.yml up -d</li>
+<li>Для того чтобы посмотреть логи о прохождение тестов: docker-compose -f docker-compose-test.yml logs -f api_test</li>
 </ol>
