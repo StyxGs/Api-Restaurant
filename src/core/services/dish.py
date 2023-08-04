@@ -1,9 +1,10 @@
 from uuid import UUID
 
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from src.core.models.dto.dish import DishDTO
-from src.core.services.errors import exists, not_found
+from src.core.services.errors import not_found
 from src.infrastructure.db.dao.rbd.dish import DishDAO
 from src.infrastructure.db.models import Dish
 
@@ -16,11 +17,11 @@ async def service_create_dish(menu_id: UUID, submenu_id: UUID, dto: DishDTO, dao
         await dao.commit()
         return result
     except IntegrityError:
-        await exists()
+        raise HTTPException(status_code=400, detail='already exists or not found')
 
 
 async def service_get_dishes(menu_id: UUID, submenu_id: UUID, dao: DishDAO) -> list[tuple]:
-    result: list[tuple] | None = await dao.get_list(submenu_id)
+    result: list[tuple] = await dao.get_list(submenu_id)
     return result
 
 

@@ -13,7 +13,7 @@ async def service_create_menu(dto: MenuDTO, dao: MenuDAO) -> Menu:
 
 
 async def service_get_menus(dao: MenuDAO) -> list[MenuDTO]:
-    result: list[tuple] | None = await dao.get_list()
+    result: list[tuple] = await dao.get_list()
     return [MenuDTO(id=menu[0], title=menu[1], description=menu[2], submenus_count=menu[3], dishes_count=menu[4])
             for menu in result]
 

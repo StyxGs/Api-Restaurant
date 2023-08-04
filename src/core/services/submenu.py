@@ -1,9 +1,10 @@
 from uuid import UUID
 
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from src.core.models.dto.submenu import SubMenuDTO
-from src.core.services.errors import exists, not_found
+from src.core.services.errors import not_found
 from src.infrastructure.db.dao.rbd.submenu import SubMenuDAO
 from src.infrastructure.db.models import SubMenu
 
@@ -16,15 +17,16 @@ async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO
         await dao.commit()
         return result
     except IntegrityError:
-        await exists()
+        raise HTTPException(status_code=400, detail='already exists or not found')
 
 
 async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO) -> list[SubMenuDTO]:
-    result: list[tuple] | None = await dao.get_list(menu_id)
+    result: list[tuple] = await dao.get_list(menu_id)
     if result == [(None, None, None, 0)]:
         return []
-    return [SubMenuDTO(id=menu[0], title=menu[1], description=menu[2], dishes_count=menu[3]) for
-            menu in result]
+    else:
+        return [SubMenuDTO(id=menu[0], title=menu[1], description=menu[2], dishes_count=menu[3]) for
+                menu in result]
 
 
 async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO) -> SubMenuDTO:
