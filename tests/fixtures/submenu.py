@@ -11,11 +11,12 @@ from src.infrastructure.db.models import Menu, SubMenu
 
 @pytest.fixture
 async def get_test_submenu(dao: HolderDAO) -> dict:
-    menu: Menu = await service_create_menu(MenuDTO(title='my menu test', description='description test'), dao.menu)
+    menu: Menu = await service_create_menu(MenuDTO(title='my menu test', description='description test'),
+                                           dao.menu, dao.redis)
     result: SubMenu = await service_create_submenu(menu.id,
                                                    SubMenuDTO(title='my submenu test',
                                                               description='submenu description test'),
-                                                   dao.submenu)
+                                                   dao.submenu, dao.redis)
     submenu: dict = PySubMenu.model_validate(result).model_dump()
     submenu['id'] = str(submenu['id'])
     return {'submenu': submenu, 'menu_id': menu.id}

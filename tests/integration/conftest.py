@@ -1,12 +1,18 @@
 from typing import AsyncGenerator
 
 import pytest
-from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
-                                    async_sessionmaker, create_async_engine)
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
-from src.common.congif.db import load_db_config
+from src.common.congif.db import load_db_config, load_redis_config
 from src.infrastructure.db.congif.moleds.db import DBConfig
 from src.infrastructure.db.dao.holder import HolderDAO
+from src.infrastructure.db.factory import create_redis
 
 
 @pytest.fixture(scope='session')
@@ -22,6 +28,12 @@ def pool(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
     return pool_
 
 
+@pytest.fixture(scope='session')
+def redis() -> Redis:
+    redis: Redis = create_redis(load_redis_config('../../../tests/config_env/.env'))
+    return redis
+
+
 @pytest.fixture
 async def session(pool: async_sessionmaker) -> AsyncGenerator[AsyncSession, None]:
     async with pool() as session_:
@@ -29,6 +41,6 @@ async def session(pool: async_sessionmaker) -> AsyncGenerator[AsyncSession, None
 
 
 @pytest.fixture
-async def dao(session: AsyncSession) -> HolderDAO:
-    dao_ = HolderDAO(session=session)
+async def dao(session: AsyncSession, redis: Redis) -> HolderDAO:
+    dao_ = HolderDAO(session=session, redis=redis)
     return dao_

@@ -29,4 +29,10 @@ services:
       timeout: 5s
       retries: 5
 
-
+  redis:
+    image: redis:7.0.12-alpine
+    container_name: redis
+    env_file:
+      - ./config_env/.env
+    ports:
+      - "6379:6379"

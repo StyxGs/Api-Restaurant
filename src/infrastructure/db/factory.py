@@ -1,7 +1,12 @@
-from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
-                                    async_sessionmaker, create_async_engine)
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
-from src.infrastructure.db.congif.moleds.db import DBConfig
+from src.infrastructure.db.congif.moleds.db import DBConfig, RedisConfig
 
 
 def create_pool(db_config: DBConfig) -> async_sessionmaker[AsyncSession]:
@@ -17,3 +22,8 @@ def create_session_marker(engine: AsyncEngine) -> async_sessionmaker[AsyncSessio
     pool: async_sessionmaker[AsyncSession] = async_sessionmaker(bind=engine, class_=AsyncSession,
                                                                 expire_on_commit=False)
     return pool
+
+
+def create_redis(config: RedisConfig):
+    return Redis(host=config.host, port=int(config.port),
+                 encoding='utf-8', decode_responses=True)

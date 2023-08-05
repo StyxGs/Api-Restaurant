@@ -11,5 +11,9 @@ class DishDTO(BaseDTO):
 
     @property
     def get_data(self):
+        return dict(id=str(self.id), title=self.title, description=self.description, price=self.price)
+
+    @property
+    def get_data_without_none(self):
         dto = dict(title=self.title, description=self.description, price=self.price)
         return {name: data for name, data in dto.items() if data}

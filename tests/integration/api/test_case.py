@@ -3,6 +3,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.usefixtures('prepare_database')
+@pytest.mark.usefixtures('redis_clear')
 @pytest.mark.usefixtures('data')
 class TestCase:
     async def test_create_menu(self, data: dict, client: AsyncClient):

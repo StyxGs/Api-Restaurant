@@ -12,3 +12,9 @@ class DBConfig:
     @property
     def make_url(self):
         return f'postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}'
+
+
+@dataclass
+class RedisConfig:
+    host: str
+    port: int

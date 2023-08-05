@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from src.api import dependencies
@@ -31,15 +32,21 @@ async def prepare_database(engine: AsyncEngine):
         await coon.run_sync(models.Base.metadata.drop_all)
 
 
+@pytest.fixture(scope='class', autouse=True)
+async def redis_clear(redis: Redis):
+    await redis.flushdb()
+    yield
+
+
 @pytest.fixture(scope='class')
 async def data() -> dict:
     return {}
 
 
 @pytest.fixture(scope='session')
-def app(pool: AsyncSession) -> FastAPI:
+def app(pool: AsyncSession, redis: Redis) -> FastAPI:
     app: FastAPI = create_app()
-    dependencies.setup(app=app, pool=pool)
+    dependencies.setup(app=app, pool=pool, redis=redis)
     routers = setup_routers.setup()
     app.include_router(routers)
     return app
