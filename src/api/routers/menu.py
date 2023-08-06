@@ -16,22 +16,27 @@ from src.infrastructure.db.dao.holder import HolderDAO
 
 
 async def create_menu(menu: RQSTMenu, dao: HolderDAO = Depends(dao_provider)):
+    """Создать меню."""
     return await service_create_menu(dto=menu.to_dto(), dao=dao.menu, redis=dao.redis)
 
 
 async def get_list_menus(dao: HolderDAO = Depends(dao_provider)):
+    """Получить список всех меню."""
     return await service_get_menus(dao=dao.menu, redis=dao.redis)
 
 
 async def get_specific_menu(menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
+    """Получить меню по id."""
     return await service_get_menu(menu_id=menu_id, dao=dao.menu, redis=dao.redis)
 
 
 async def update_menu(menu: RQSTMenuUpdate, menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
+    """Обновить меню."""
     return await service_update_menu(dto=menu.to_dto(), menu_id=menu_id, dao=dao.menu, redis=dao.redis)
 
 
 async def delete_menu(menu_id: UUID, dao: HolderDAO = Depends(dao_provider)):
+    """Удалить меню."""
     return await service_delete_menu(menu_id=menu_id, dao=dao.menu, redis=dao.redis)
 
 
