@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from starlette.routing import NoMatchFound
 
 from src.api import dependencies
 from src.api import routers as setup_routers
@@ -56,3 +57,14 @@ def app(pool: AsyncSession, redis: Redis) -> FastAPI:
 async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url='http://test/') as ac:
         yield ac
+
+
+@pytest.fixture
+def reverse(app: FastAPI):
+    def reverse_(name: str, **kwargs) -> str:
+        try:
+            return app.url_path_for(name, **kwargs)
+        except NoMatchFound:
+            return 'not found'
+
+    return reverse_

@@ -6,6 +6,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -36,3 +38,8 @@ services:
       - ./config_env/.env
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
