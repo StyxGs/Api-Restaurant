@@ -9,7 +9,8 @@ class BaseDAO:
 
     async def create(self, data: dict, model):
         result = await self.session.scalars(insert(model).values(data).returning(model))
-        return result.first()
+        mdl = result.first()
+        return mdl.to_dto()
 
     async def commit(self):
         await self.session.commit()

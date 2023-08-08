@@ -12,12 +12,13 @@ from src.infrastructure.db.dao.redis.redis_dao import RedisDAO
 from src.infrastructure.db.models import SubMenu
 
 
-async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO, redis: RedisDAO) -> SubMenu:
+async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO, redis: RedisDAO) -> SubMenuDTO:
     try:
         data: dict = dto.get_data_without_none
         data['menu_id'] = menu_id
-        result: SubMenu = await dao.create(data, SubMenu)
-        await redis.delete(keys['submenus'] + str(menu_id), keys['menus'])
+        result: SubMenuDTO = await dao.create(data, SubMenu)
+        result.dishes_count = 0
+        await redis.delete(keys['submenus'] + str(menu_id), keys['menus'], keys['menu'] + str(menu_id))
         await dao.commit()
         return result
     except IntegrityError:
@@ -30,15 +31,8 @@ async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) 
         data: str = await redis.get(key)
         submenus = json.loads(data)
     else:
-        result: list[tuple] = await dao.get_list(menu_id)
-        if all(not element for element in result[0]):
-            return []
-        else:
-            submenus = [
-                SubMenuDTO(id=menu[0], title=menu[1], description=menu[2], dishes_count=menu[3]) for
-                menu in result
-            ]
-            await redis.save(key, json.dumps([submenu.get_data for submenu in submenus]))
+        submenus = await dao.get_list(menu_id)
+        await redis.save(key, json.dumps([submenu.get_data for submenu in submenus]))
     return submenus
 
 
@@ -48,27 +42,28 @@ async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO, 
         data: str = await redis.get(key)
         submenu = json.loads(data)
     else:
-        result: tuple = await dao.get_one(submenu_id, menu_id)
-        await not_found(result, 'submenu not found')
-        submenu = SubMenuDTO(id=result[0], title=result[1], description=result[2], dishes_count=result[3])
+        submenu = await dao.get_one(submenu_id, menu_id)
+        await not_found(submenu, 'submenu not found')
         await redis.save(key, json.dumps(submenu.get_data))
     return submenu
 
 
 async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO,
                                  redis: RedisDAO) -> SubMenuDTO:
-    result: tuple = await dao.update(dto.get_data_without_none, submenu_id, menu_id)
+    result: int = await dao.update(dto.get_data_without_none, submenu_id, menu_id)
     await not_found(result, 'submenu not found')
     await redis.delete(keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id))
     await dao.commit()
-    submenu: tuple = await dao.get_one(submenu_id, menu_id)
-    return SubMenuDTO(id=submenu[0], title=submenu[1], description=submenu[2], dishes_count=submenu[3])
+    submenu: SubMenuDTO = await dao.get_one(submenu_id, menu_id)
+    return submenu
 
 
 async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) -> dict:
-    result = await dao.delete(submenu_id, menu_id)
+    dishes_id: list = await dao.get_one_submenu(submenu_id, menu_id)
+    result: int = await dao.delete(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
-    await redis.delete(keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id), keys['menus'],
-                       keys['menu'] + str(menu_id))
+    await dao.delete(submenu_id, menu_id)
+    await redis.delete(*dishes_id, keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id), keys['menus'],
+                       keys['menu'] + str(menu_id), keys['dishes'] + str(submenu_id))
     await dao.commit()
     return {'status': True, 'message': 'The submenu has been deleted'}

@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.models.dto.submenu import SubMenuDTO
 from src.infrastructure.db.models.base import Base
 from src.infrastructure.db.models.dish import Dish
 
@@ -18,3 +19,6 @@ class SubMenu(Base):
 
     def __repr__(self) -> str:
         return f'SubMenu(id={self.id!r}, title={self.title!r})'
+
+    def to_dto(self) -> SubMenuDTO:
+        return SubMenuDTO(id=self.id, title=self.title, description=self.description)

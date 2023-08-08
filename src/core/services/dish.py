@@ -12,11 +12,11 @@ from src.infrastructure.db.dao.redis.redis_dao import RedisDAO
 from src.infrastructure.db.models import Dish
 
 
-async def service_create_dish(menu_id: UUID, submenu_id: UUID, dto: DishDTO, dao: DishDAO, redis: RedisDAO) -> Dish:
+async def service_create_dish(menu_id: UUID, submenu_id: UUID, dto: DishDTO, dao: DishDAO, redis: RedisDAO) -> DishDTO:
     try:
         data: dict = dto.get_data_without_none
         data['submenu_id'] = submenu_id
-        result: Dish = await dao.create(data, Dish)
+        result: DishDTO = await dao.create(data, Dish)
         await redis.delete(keys['dishes'] + str(submenu_id), keys['submenus'] + str(menu_id), keys['menus'])
         await dao.commit()
         return result
@@ -30,9 +30,7 @@ async def service_get_dishes(menu_id: UUID, submenu_id: UUID, dao: DishDAO, redi
         data: str = await redis.get(key)
         dishes = json.loads(data)
     else:
-        result: list[Dish] = await dao.get_list(submenu_id)
-        dishes = [DishDTO(id=dish.id, title=dish.title, description=dish.description, price=dish.price)
-                  for dish in result]
+        dishes = await dao.get_list(submenu_id)
         await redis.save(key, json.dumps([dish.get_data for dish in dishes]))
     return dishes
 
@@ -44,25 +42,24 @@ async def service_get_dish(submenu_id: UUID, menu_id: UUID, dish_id: UUID, dao: 
         data: str = await redis.get(key)
         dish = json.loads(data)
     else:
-        result: Dish = await dao.get_one(submenu_id, dish_id)
-        await not_found(result, 'dish not found')
-        dish = DishDTO(id=result.id, title=result.title, description=result.description, price=result.price)
+        dish = await dao.get_one(submenu_id, dish_id)
+        await not_found(dish, 'dish not found')
         await redis.save(key, json.dumps(dish.get_data))
     return dish
 
 
 async def service_update_dish(dto: DishDTO, menu_id: UUID, submenu_id: UUID, dish_id: UUID, dao: DishDAO,
-                              redis: RedisDAO) -> tuple:
+                              redis: RedisDAO) -> DishDTO:
     result: int = await dao.update(dto.get_data_without_none, submenu_id, dish_id)
     await not_found(result, 'dish not found')
     await redis.delete(keys['dishes'] + str(submenu_id), keys['dish'] + str(dish_id))
     await dao.commit()
-    dish: Dish = await dao.get_one(submenu_id, dish_id)
+    dish: DishDTO = await dao.get_one(submenu_id, dish_id)
     return dish
 
 
 async def service_delete_dish(menu_id: UUID, submenu_id: UUID, dish_id: UUID, dao: DishDAO, redis: RedisDAO) -> dict:
-    result = await dao.delete(submenu_id, dish_id)
+    result: int = await dao.delete(submenu_id, dish_id)
     await not_found(result, 'dish not found')
     await redis.delete(keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id), keys['menus'],
                        keys['menu'] + str(menu_id), keys['dishes'] + str(submenu_id), keys['dish'] + str(dish_id))

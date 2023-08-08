@@ -10,6 +10,6 @@ class SubMenuDTO(BaseDTO):
     dishes_count: int | None = None
 
     @property
-    def get_data(self):
+    def get_data(self) -> dict:
         return dict(id=str(self.id), title=self.title, description=self.description,
                     dishes_count=self.dishes_count)
