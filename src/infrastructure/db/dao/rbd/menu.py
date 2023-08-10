@@ -4,7 +4,6 @@ from sqlalchemy import Delete, Update, delete, distinct, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from src.common.congif.key_redis import keys
 from src.core.models.dto.menu import MenuDTO
 from src.infrastructure.db.dao.rbd.base import BaseDAO
 from src.infrastructure.db.models import Dish, SubMenu
@@ -43,12 +42,11 @@ class MenuDAO(BaseDAO):
 
     @staticmethod
     async def get_id_submenus_and_dishes(menu: Menu) -> dict:
-        all_id: dict = {'submenus': [], 'dishes': []}
+        all_id: dict = {'submenus_id': [], 'dishes_id': []}
         for submenu in menu.submenu:
-            all_id['submenus'].append(keys['submenu'] + str(submenu.id))
-            all_id['dishes'].append(keys['dishes'] + str(submenu.id))
+            all_id['submenus_id'].append(str(submenu.id))
             for dish in submenu.dishes:
-                all_id['dishes'].append(keys['dish'] + str(dish.id))
+                all_id['dishes_id'].append(str(dish.id))
         return all_id
 
     async def get_one_menu(self, menu_id: UUID):

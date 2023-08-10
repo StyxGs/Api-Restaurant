@@ -4,7 +4,6 @@ from sqlalchemy import Delete, Update, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from src.common.congif.key_redis import keys
 from src.core.models.dto.submenu import SubMenuDTO
 from src.infrastructure.db.dao.rbd.base import BaseDAO
 from src.infrastructure.db.models import Dish
@@ -36,18 +35,14 @@ class SubMenuDAO(BaseDAO):
         else:
             return None
 
-    @staticmethod
-    async def get_id_dishes(submenu: SubMenu) -> list:
-        return [keys['dish'] + str(dish_id.id) for dish_id in submenu.dishes]
-
-    async def get_one_submenu(self, submenu_id: UUID, menu_id: UUID):
-        """Получаем Подменю и все его блюда"""
+    async def get_all_dish_id(self, submenu_id: UUID, menu_id: UUID):
+        """Получаем Все id блюд относящиеся к одному подменю."""
         result = await self.session.scalars(
             select(SubMenu).options(joinedload(SubMenu.dishes)).filter(SubMenu.id == submenu_id,
                                                                        SubMenu.menu_id == menu_id))
-        submenu = result.first()
+        submenu: SubMenu = result.first()
         if submenu:
-            return await self.get_id_dishes(submenu)
+            return [dish.id for dish in submenu.dishes]
         else:
             return None
 

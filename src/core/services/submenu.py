@@ -4,7 +4,6 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
-from src.common.congif.key_redis import keys
 from src.core.models.dto.submenu import SubMenuDTO
 from src.core.services.errors import not_found
 from src.infrastructure.db.dao.rbd.submenu import SubMenuDAO
@@ -18,7 +17,8 @@ async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO
         data['menu_id'] = menu_id
         result: SubMenuDTO = await dao.create(data, SubMenu)
         result.dishes_count = 0
-        await redis.delete(keys['submenus'] + str(menu_id), keys['menus'], keys['menu'] + str(menu_id))
+        await redis.delete(redis.keys.get_keys(submenus={'menus_id': [menu_id]},
+                                               menus={'list_menus': 'list_menus', 'menus_id': [menu_id]}))
         await dao.commit()
         return result
     except IntegrityError:
@@ -26,7 +26,7 @@ async def service_create_submenu(menu_id: UUID, dto: SubMenuDTO, dao: SubMenuDAO
 
 
 async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) -> list:
-    key: str = keys['submenus'] + str(menu_id)
+    key: str = redis.keys.get_keys(submenus={'menus_id': [menu_id]})[0]
     if await redis.check_exist_key(key):
         data: str = await redis.get(key)
         submenus = json.loads(data)
@@ -37,7 +37,7 @@ async def service_get_submenus(menu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) 
 
 
 async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) -> SubMenuDTO | dict:
-    key: str = keys['submenu'] + str(submenu_id)
+    key: str = redis.keys.get_keys(submenus={'submenus_id': [submenu_id]})[0]
     if await redis.check_exist_key(key):
         data: str = await redis.get(key)
         submenu = json.loads(data)
@@ -52,18 +52,19 @@ async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUI
                                  redis: RedisDAO) -> SubMenuDTO:
     result: int = await dao.update(dto.get_data_without_none, submenu_id, menu_id)
     await not_found(result, 'submenu not found')
-    await redis.delete(keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id))
+    await redis.delete(redis.keys.get_keys(submenus={'submenus_id': [submenu_id], 'menus_id': [menu_id]}))
     await dao.commit()
     submenu: SubMenuDTO = await dao.get_one(submenu_id, menu_id)
     return submenu
 
 
 async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO, redis: RedisDAO) -> dict:
-    dishes_id: list = await dao.get_one_submenu(submenu_id, menu_id)
+    dishes_id: list = await dao.get_all_dish_id(submenu_id, menu_id)
     result: int = await dao.delete(submenu_id, menu_id)
     await not_found(result, 'submenu not found')
-    await dao.delete(submenu_id, menu_id)
-    await redis.delete(*dishes_id, keys['submenus'] + str(menu_id), keys['submenu'] + str(submenu_id), keys['menus'],
-                       keys['menu'] + str(menu_id), keys['dishes'] + str(submenu_id))
+    await redis.delete(redis.keys.get_keys(menus={'menus_id': [menu_id], 'list_menus': 'list_menus'},
+                                           submenus={'menus_id': [menu_id], 'submenus_id': [submenu_id]},
+                                           dishes={'submenus_id': [submenu_id],
+                                                   'dishes_id': dishes_id}))
     await dao.commit()
     return {'status': True, 'message': 'The submenu has been deleted'}
