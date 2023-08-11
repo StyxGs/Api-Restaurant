@@ -8,7 +8,7 @@ class RedisDAO:
         self.redis = redis
         self.keys = RedisKeys()
 
-    async def save(self, key: str, data: str):
+    async def save(self, key: str, data: bytes):
         await self.redis.set(key, data, ex=600)
 
     async def get(self, key: str):

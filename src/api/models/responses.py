@@ -27,3 +27,15 @@ class PyDish(BaseResponse):
     def validate_birth_date(cls, correct_price):
         correct_price = str(round(float(correct_price), 2))
         return correct_price
+
+
+class Dish(BaseResponse):
+    price: str = Field(examples=['14.45', ])
+
+
+class Submenu(BaseResponse):
+    dishes: list[Dish]
+
+
+class FullMenu(BaseResponse):
+    submenus: list[Submenu]

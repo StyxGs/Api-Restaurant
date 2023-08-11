@@ -26,4 +26,4 @@ def create_session_marker(engine: AsyncEngine) -> async_sessionmaker[AsyncSessio
 
 def create_redis(config: RedisConfig):
     return Redis(host=config.host, port=int(config.port),
-                 encoding='utf-8', decode_responses=True)
+                 encoding='utf-8')

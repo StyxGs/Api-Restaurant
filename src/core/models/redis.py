@@ -1,83 +1,84 @@
 from dataclasses import dataclass
 
-from src.infrastructure.db.models.redis import Base
+from src.core.utils import removing_keys_with_value_of_none
+from src.infrastructure.db.models.redis.redis import Base
 
 
 class MenuRedisKey(Base):
     def __init__(self, **keys):
         self.keys = keys
 
-    def get_menu_keys(self, menus_id: list):
+    def get_menu_keys(self, menus_id: list) -> list:
         return [self.keys['menu'] + str(menu_id) for menu_id in menus_id]
 
-    def get_keys(self, menus_id: list | None = None, list_menus: str | None = None):
-        keys: list = []
-        if menus_id and list_menus:
-            keys.extend(self.get_menu_keys(menus_id))
-            keys.append(self.keys['menus'])
-        elif menus_id:
-            keys.extend(self.get_menu_keys(menus_id))
-        elif list_menus:
-            keys.append(self.keys['menus'])
-        return keys
+    @removing_keys_with_value_of_none
+    def get_keys(self, **keys_menus) -> list:
+        general: list = []
+        for key_menu, value in keys_menus.items():
+            if key_menu == 'list_menus' or key_menu == 'full_menus':
+                general.append(value)
+            elif key_menu == 'menus_id':
+                general.extend(self.get_menu_keys(value))
+        return general
 
 
 class SubMenuRedisKey(Base):
     def __init__(self, **keys):
         self.keys = keys
 
-    def get_submenus_list_keys(self, menus_id: list):
+    def get_submenus_list_keys(self, menus_id: list) -> list:
         return [self.keys['submenus'] + str(menu_id) for menu_id in menus_id]
 
-    def get_submenu_keys(self, submenus_id: list):
+    def get_submenu_keys(self, submenus_id: list) -> list:
         return [self.keys['submenu'] + str(submenu_id) for submenu_id in submenus_id]
 
-    def get_keys(self, submenus_id: list | None = None, menus_id: list | None = None):
-        if submenus_id and menus_id:
-            return self.get_submenus_list_keys(menus_id) + self.get_submenu_keys(submenus_id)
-        elif submenus_id:
-            return self.get_submenu_keys(submenus_id)
-        elif menus_id:
-            return self.get_submenus_list_keys(menus_id)
-        else:
-            return []
+    @removing_keys_with_value_of_none
+    def get_keys(self, **keys_submenus) -> list:
+        general: list = []
+        for key_submenu, value in keys_submenus.items():
+            if key_submenu == 'submenus_id':
+                general.extend(self.get_submenu_keys(value))
+            elif key_submenu == 'menus_id':
+                return self.get_submenus_list_keys(value)
+        return general
 
 
 class DishRedisKey(Base):
     def __init__(self, **keys):
         self.keys = keys
 
-    def get_dishes_list_keys(self, submenus_id: list):
+    def get_dishes_list_keys(self, submenus_id: list) -> list:
         return [self.keys['dishes'] + str(submenu_id) for submenu_id in submenus_id]
 
-    def get_dish_keys(self, dishes_id: list):
+    def get_dish_keys(self, dishes_id: list) -> list:
         return [self.keys['dish'] + str(dish_id) for dish_id in dishes_id]
 
-    def get_keys(self, dishes_id: list | None = None, submenus_id: list | None = None):
-        if dishes_id and submenus_id:
-            return self.get_dish_keys(dishes_id) + self.get_dishes_list_keys(submenus_id)
-        elif dishes_id:
-            return self.get_dish_keys(dishes_id)
-        elif submenus_id:
-            return self.get_dishes_list_keys(submenus_id)
-        else:
-            return []
+    @removing_keys_with_value_of_none
+    def get_keys(self, **keys_dishes) -> list:
+        general: list = []
+        for key_dish, value in keys_dishes.items():
+            if key_dish == 'dishes_id':
+                return self.get_dish_keys(value)
+            elif key_dish == 'submenus_id':
+                return self.get_dishes_list_keys(value)
+        return general
 
 
 @dataclass
 class RedisKeys:
-    keys_menu: MenuRedisKey = MenuRedisKey(menus='list_menus', menu='menu_')
+    keys_menu: MenuRedisKey = MenuRedisKey(menus='list_menus', menu='menu_', full_menus='full_menus')
     keys_submenu: SubMenuRedisKey = SubMenuRedisKey(submenus='list_submenus_', submenu='submenu_')
     keys_dish: DishRedisKey = DishRedisKey(dishes='list_dishes_', dish='dish_')
 
     def get_keys(self, menus: dict | None = None,
                  submenus: dict | None = None,
-                 dishes: dict | None = None):
+                 dishes: dict | None = None) -> list:
         keys = []
         if menus:
             menus_id = menus.get('menus_id')
             list_menus = menus.get('list_menus')
-            keys.extend(self.keys_menu.get_keys(menus_id=menus_id, list_menus=list_menus))
+            full_menus = menus.get('full_menus')
+            keys.extend(self.keys_menu.get_keys(menus_id=menus_id, list_menus=list_menus, full_menus=full_menus))
         if submenus:
             submenus_id = submenus.get('submenus_id')
             menus_id = submenus.get('menus_id')
