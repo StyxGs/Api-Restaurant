@@ -39,7 +39,7 @@ class SubMenuRedisKey(Base):
             if key_submenu == 'submenus_id':
                 general.extend(self.get_submenu_keys(value))
             elif key_submenu == 'menus_id':
-                return self.get_submenus_list_keys(value)
+                general.extend(self.get_submenus_list_keys(value))
         return general
 
 
@@ -58,9 +58,9 @@ class DishRedisKey(Base):
         general: list = []
         for key_dish, value in keys_dishes.items():
             if key_dish == 'dishes_id':
-                return self.get_dish_keys(value)
+                general.extend(self.get_dish_keys(value))
             elif key_dish == 'submenus_id':
-                return self.get_dishes_list_keys(value)
+                general.extend(self.get_dishes_list_keys(value))
         return general
 
 
