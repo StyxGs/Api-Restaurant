@@ -25,7 +25,7 @@
 <li>Клонировать репозиторий: git clone https://github.com/StyxGs/Y_lab.git</li>
 <li>Перейти в папку куда скопирован проект, там должен находить файл docker-compose.yml</li>
 <li>Выполнить команду docker-compose up -d</li>
-<li>Апи будет доступно по адресу: http://localhost:8000</li>
+<li>Апи будет доступно по адресу: http://localhost:9999</li>
 </ol>
 
 <h3>Тестирование. Инструкция по запуску.</h3>
