@@ -1,8 +1,6 @@
 import pickle
 from uuid import UUID
 
-from src.infrastructure.db.dao.redis.redis_dao import RedisDAO
-
 
 def removing_keys_with_value_of_none(func):
     def wrapp(obj, **keys):
@@ -12,7 +10,7 @@ def removing_keys_with_value_of_none(func):
     return wrapp
 
 
-async def get_data(dao, key: str, redis: RedisDAO, data_id: UUID | None = None) -> list:
+async def get_data(dao, key: str, redis, data_id: UUID | None = None) -> list:
     if await redis.check_exist_key(key):
         data = await redis.get(key)
         obj = pickle.loads(data)

@@ -13,3 +13,6 @@ class HolderDAO:
         self.submenu = SubMenuDAO(session)
         self.dish = DishDAO(session)
         self.redis = RedisDAO(redis)
+
+    async def commit(self):
+        await self.session.commit()

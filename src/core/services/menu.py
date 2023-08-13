@@ -1,19 +1,20 @@
 import pickle
 from uuid import UUID
 
+from fastapi import BackgroundTasks, HTTPException
+
 from src.core.models.dto.menu import MenuDTO
-from src.core.services.errors import not_found
 from src.core.utils import get_data
 from src.infrastructure.db.dao.rbd.menu import MenuDAO
 from src.infrastructure.db.dao.redis.redis_dao import RedisDAO
 from src.infrastructure.db.models import Menu
 
 
-async def service_create_menu(dto: MenuDTO, dao: MenuDAO, redis: RedisDAO) -> MenuDTO:
+async def service_create_menu(dto: MenuDTO, dao: MenuDAO, redis: RedisDAO, bg: BackgroundTasks) -> MenuDTO:
     result: MenuDTO = await dao.create(dto.get_data_without_none, Menu)
     result.submenus_count = 0
     result.dishes_count = 0
-    await redis.delete(redis.keys.get_keys(menus={'list_menus': 'list_menus', 'full_menus': 'full_menus'}))
+    bg.add_task(redis.delete, redis.keys.get_keys(menus={'list_menus': 'list_menus', 'full_menus': 'full_menus'}))
     await dao.commit()
     return result
 
@@ -41,29 +42,36 @@ async def service_get_menu(menu_id: UUID, dao: MenuDAO, redis: RedisDAO) -> Menu
         menu = pickle.loads(data)
     else:
         menu = await dao.get_one(menu_id)
-        await not_found(menu, 'menu not found')
-        await redis.save(key, pickle.dumps(menu))
+        if menu:
+            await redis.save(key, pickle.dumps(menu))
+        else:
+            raise HTTPException(status_code=404, detail='menu not found')
     return menu
 
 
-async def service_update_menu(dto: MenuDTO, menu_id: UUID, dao: MenuDAO, redis: RedisDAO) -> MenuDTO:
-    result: int = await dao.update(dto.get_data_without_none, menu_id)
-    await not_found(result, 'menu not found')
-    await redis.delete(
-        redis.keys.get_keys(menus={'menus_id': [menu_id], 'list_menus': 'list_menus', 'full_menus': 'full_menus'}))
-    await dao.commit()
-    menu: MenuDTO = await dao.get_one(menu_id)
-    return menu
+async def service_update_menu(dto: MenuDTO, menu_id: UUID, dao: MenuDAO, redis: RedisDAO, bg: BackgroundTasks) -> MenuDTO:
+    if await dao.check_exists_value_in_db(Menu, menu_id):
+        await dao.update(dto.get_data_without_none, menu_id)
+        bg.add_task(redis.delete,
+                    redis.keys.get_keys(
+                        menus={'menus_id': [menu_id], 'list_menus': 'list_menus', 'full_menus': 'full_menus'}))
+        await dao.commit()
+        menu: MenuDTO = await dao.get_one(menu_id)
+        return menu
+    else:
+        raise HTTPException(status_code=404, detail='menu not found')
 
 
-async def service_delete_menu(menu_id: UUID, dao: MenuDAO, redis: RedisDAO) -> dict:
-    data_id: dict = await dao.get_one_menu(menu_id)
-    result: int = await dao.delete(menu_id)
-    await not_found(result, 'menu not found')
-    await redis.delete(
-        redis.keys.get_keys(menus={'menus_id': [menu_id], 'list_menus': 'list_menus', 'full_menus': 'full_menus'},
-                            submenus={'menus_id': [menu_id], 'submenus_id': data_id['submenus_id']},
-                            dishes={'submenus_id': data_id['submenus_id'],
-                                    'dishes_id': data_id['dishes_id']}))
-    await dao.commit()
-    return {'status': True, 'message': 'The menu has been deleted'}
+async def service_delete_menu(menu_id: UUID, dao: MenuDAO, redis: RedisDAO, bg: BackgroundTasks) -> dict:
+    if await dao.check_exists_value_in_db(Menu, menu_id):
+        data_id: dict = await dao.get_one_menu(menu_id)
+        await dao.delete(menu_id)
+        bg.add_task(redis.delete, redis.keys.get_keys(
+            menus={'menus_id': [menu_id], 'list_menus': 'list_menus', 'full_menus': 'full_menus'},
+            submenus={'menus_id': [menu_id], 'submenus_id': data_id['submenus_id']},
+            dishes={'submenus_id': data_id['submenus_id'],
+                    'dishes_id': data_id['dishes_id']}))
+        await dao.commit()
+        return {'status': True, 'message': 'The menu has been deleted'}
+    else:
+        raise HTTPException(status_code=404, detail='menu not found')

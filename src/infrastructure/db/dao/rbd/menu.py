@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy import Delete, Update, delete, distinct, func, select, update
+from sqlalchemy import delete, distinct, func, select, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
@@ -16,7 +17,8 @@ class MenuDAO(BaseDAO):
         super().__init__(Menu, session)
 
     async def get_full_menu(self) -> list[Menu]:
-        result = await self.session.scalars(select(Menu).options(selectinload(Menu.submenus).selectinload(SubMenu.dishes)))
+        result = await self.session.scalars(
+            select(Menu).options(selectinload(Menu.submenus).selectinload(SubMenu.dishes)))
         return result.all()
 
     async def get_list(self) -> list:
@@ -63,10 +65,22 @@ class MenuDAO(BaseDAO):
         else:
             return None
 
-    async def update(self, data: dict, menu_id: UUID) -> int:
-        result: Update = await self.session.execute(update(Menu).values(data).filter(Menu.id == menu_id))
-        return result.rowcount
+    async def update(self, data: dict, menu_id: UUID) -> None:
+        await self.session.execute(update(Menu).values(data).filter(Menu.id == menu_id))
 
-    async def delete(self, menu_id: UUID) -> int:
-        result: Delete = await self.session.execute(delete(Menu).filter(Menu.id == menu_id))
-        return result.rowcount
+    async def delete(self, menu_id: UUID) -> None:
+        await self.session.execute(delete(Menu).filter(Menu.id == menu_id))
+
+    async def insert_or_update(self, data: list):
+        stmt = insert(Menu).values(data)
+        stmt_menu = stmt.on_conflict_do_update(index_elements=['id'],
+                                               set_=dict(title=stmt.excluded.title,
+                                                         description=stmt.excluded.description))
+        await self.session.execute(stmt_menu)
+
+    async def get_all_id(self):
+        result = await self.session.scalars(select(Menu.id))
+        return result.all()
+
+    async def delete_data_list(self, menus_id: list):
+        await self.session.execute(delete(Menu).filter(Menu.id.in_(menus_id)))

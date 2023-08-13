@@ -11,12 +11,12 @@ from src.infrastructure.db.factory import create_pool, create_redis
 
 def main() -> FastAPI:
     app: FastAPI = create_app()
-    pool: async_sessionmaker[AsyncSession] = create_pool(load_db_config())
     redis: Redis = create_redis(load_redis_config())
+    pool: async_sessionmaker[AsyncSession] = create_pool(load_db_config())
     dependencies.setup(app=app, pool=pool, redis=redis)
     routers = setup_routers.setup()
     app.include_router(routers)
     return app
 
 
-app = main()
+app: FastAPI = main()

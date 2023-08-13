@@ -21,6 +21,13 @@ async def test_create_menu(client: AsyncClient, reverse):
     assert menu_api.json() == menu
 
 
+async def test_get_full_info_menus(get_full_menu: list, client: AsyncClient, reverse):
+    url: str = reverse('get_full_info_menus')
+    result = await client.get(url)
+    assert result.status_code == 200
+    assert result.json() == get_full_menu
+
+
 async def test_get_list_menus(get_test_menu: dict, client: AsyncClient, reverse):
     url: str = reverse('get_list_menus')
     result = await client.get(url)

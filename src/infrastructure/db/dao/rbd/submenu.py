@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from sqlalchemy import Delete, Update, delete, func, select, update
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -46,12 +47,23 @@ class SubMenuDAO(BaseDAO):
         else:
             return None
 
-    async def update(self, data: dict, submenu_id: UUID, menu_id: UUID) -> int:
-        result: Update = await self.session.execute(
+    async def update(self, data: dict, submenu_id: UUID, menu_id: UUID) -> None:
+        await self.session.execute(
             update(SubMenu).values(data).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
-        return result.rowcount
 
-    async def delete(self, submenu_id: UUID, menu_id: UUID) -> int:
-        result: Delete = await self.session.execute(
-            delete(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
-        return result.rowcount
+    async def delete(self, submenu_id: UUID, menu_id: UUID) -> None:
+        await self.session.execute(delete(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
+
+    async def insert_or_update(self, data: list):
+        stmt = insert(SubMenu).values(data)
+        stmt_menu = stmt.on_conflict_do_update(index_elements=['id'],
+                                               set_=dict(title=stmt.excluded.title,
+                                                         description=stmt.excluded.description))
+        await self.session.execute(stmt_menu)
+
+    async def get_all_id(self):
+        result = await self.session.scalars(select(SubMenu.id))
+        return result.all()
+
+    async def delete_data_list(self, submenus_id: list):
+        await self.session.execute(delete(SubMenu).filter(SubMenu.id.in_(submenus_id)))
