@@ -40,7 +40,7 @@ async def service_get_dish(submenu_id: UUID, menu_id: UUID, dish_id: UUID, dao: 
         data = await redis.get(key)
         dish = pickle.loads(data)
     else:
-        dish = await dao.get_one(submenu_id, dish_id)
+        dish: dict | None = await dao.get_one(submenu_id, dish_id)  # type: ignore
         if dish:
             await redis.save(key, pickle.dumps(dish))
         else:
@@ -55,7 +55,7 @@ async def service_update_dish(dto: DishDTO, menu_id: UUID, submenu_id: UUID, dis
         bg.add_task(redis.delete, redis.keys.get_keys(dishes={'submenus_id': [submenu_id], 'dishes_id': [dish_id]},
                                                       menus={'full_menus': 'full_menus'}))
         await dao.commit()
-        dish: DishDTO = await dao.get_one(submenu_id, dish_id)
+        dish: DishDTO = await dao.get_one(submenu_id, dish_id)  # type: ignore
         return dish
     else:
         raise HTTPException(status_code=404, detail='dish not found')

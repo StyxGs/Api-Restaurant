@@ -17,12 +17,12 @@ class MenuDAO(BaseDAO):
     def __init__(self, session: AsyncSession):
         super().__init__(Menu, session)
 
-    async def get_full_menu(self) -> list[Menu]:
+    async def get_full_menu(self) -> list[FullMenu]:
         result = await self.session.scalars(
             select(Menu).options(selectinload(Menu.submenus).selectinload(SubMenu.dishes)))
         return [FullMenu.model_validate(rt) for rt in result.all()]
 
-    async def get_list(self) -> list:
+    async def get_list(self) -> list[MenuDTO]:
         result = await self.session.execute(
             select(Menu.id, Menu.title, Menu.description, func.count(distinct(SubMenu.id)),
                    func.count(distinct(Dish.id))).outerjoin(
@@ -34,7 +34,7 @@ class MenuDAO(BaseDAO):
         ]
         return menus
 
-    async def get_one(self, menu_id: UUID):
+    async def get_one(self, menu_id: UUID) -> MenuDTO | None:
         result = await self.session.execute(
             select(Menu.id, Menu.title, Menu.description, func.count(distinct(SubMenu.id)),
                    func.count(distinct(Dish.id))).outerjoin(
@@ -56,7 +56,7 @@ class MenuDAO(BaseDAO):
                 all_id['dishes_id'].append(str(dish.id))
         return all_id
 
-    async def get_one_menu(self, menu_id: UUID):
+    async def get_one_menu(self, menu_id: UUID) -> dict | None:
         """Получаем Меню и все её подменю и блюда этих подменю."""
         result = await self.session.scalars(
             select(Menu).options(joinedload(Menu.submenus).joinedload(SubMenu.dishes)).filter(Menu.id == menu_id))
@@ -79,7 +79,7 @@ class MenuDAO(BaseDAO):
                                                          description=stmt.excluded.description))
         await self.session.execute(stmt_menu)
 
-    async def get_all_id(self):
+    async def get_all_id(self) -> list[Menu]:
         result = await self.session.scalars(select(Menu.id))
         return result.all()
 

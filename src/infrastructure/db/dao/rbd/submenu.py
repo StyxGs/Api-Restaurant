@@ -16,7 +16,7 @@ class SubMenuDAO(BaseDAO):
     def __init__(self, session: AsyncSession):
         super().__init__(SubMenu, session)
 
-    async def get_list(self, menu_id: UUID) -> list:
+    async def get_list(self, menu_id: UUID) -> list[SubMenuDTO]:
         result = await self.session.execute(
             select(SubMenu.id, SubMenu.title, SubMenu.description, func.count(Dish.id)).outerjoin(
                 SubMenu.dishes).filter(SubMenu.menu_id == menu_id).group_by(SubMenu.id))
@@ -26,7 +26,7 @@ class SubMenuDAO(BaseDAO):
         ]
         return submenus
 
-    async def get_one(self, submenu_id: UUID, menu_id: UUID):
+    async def get_one(self, submenu_id: UUID, menu_id: UUID) -> SubMenuDTO | None:
         result = await self.session.execute(
             select(SubMenu.id, SubMenu.title, SubMenu.description, func.count(Dish.id)).outerjoin(
                 SubMenu.dishes).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).group_by(SubMenu.id))
@@ -36,7 +36,7 @@ class SubMenuDAO(BaseDAO):
         else:
             return None
 
-    async def get_all_dish_id(self, submenu_id: UUID, menu_id: UUID):
+    async def get_all_dish_id(self, submenu_id: UUID, menu_id: UUID) -> list | None:
         """Получаем Все id блюд относящиеся к одному подменю."""
         result = await self.session.scalars(
             select(SubMenu).options(joinedload(SubMenu.dishes)).filter(SubMenu.id == submenu_id,
@@ -61,7 +61,7 @@ class SubMenuDAO(BaseDAO):
                                                          description=stmt.excluded.description))
         await self.session.execute(stmt_menu)
 
-    async def get_all_id(self):
+    async def get_all_id(self) -> list:
         result = await self.session.scalars(select(SubMenu.id))
         return result.all()
 

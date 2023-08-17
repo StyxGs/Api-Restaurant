@@ -4,6 +4,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.models.dto.dish import DishDTO
 from src.infrastructure.db.dao.rbd.base import BaseDAO
 from src.infrastructure.db.models.dish import Dish
 
@@ -19,7 +20,7 @@ class DishDAO(BaseDAO):
         dishes = result.all()
         return [dish.to_dto() for dish in dishes]
 
-    async def get_one(self, submenu_id: UUID, dish_id: UUID):
+    async def get_one(self, submenu_id: UUID, dish_id: UUID) -> DishDTO | None:
         result = await self.session.scalars(
             select(Dish).filter(Dish.submenu_id == submenu_id, Dish.id == dish_id))
         dish = result.first()
@@ -42,7 +43,7 @@ class DishDAO(BaseDAO):
                                                          price=stmt.excluded.price))
         await self.session.execute(stmt_dish)
 
-    async def get_all_id(self):
+    async def get_all_id(self) -> list:
         result = await self.session.scalars(select(Dish.id))
         return result.all()
 

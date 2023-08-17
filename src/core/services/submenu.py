@@ -38,7 +38,7 @@ async def service_get_submenu(submenu_id: UUID, menu_id: UUID, dao: SubMenuDAO, 
         data = await redis.get(key)
         submenu = pickle.loads(data)
     else:
-        submenu = await dao.get_one(submenu_id, menu_id)
+        submenu: SubMenuDTO | None = await dao.get_one(submenu_id, menu_id)  # type: ignore
         if submenu:
             await redis.save(key, pickle.dumps(submenu))
         else:
@@ -53,7 +53,7 @@ async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUI
         bg.add_task(redis.delete, redis.keys.get_keys(submenus={'submenus_id': [submenu_id], 'menus_id': [menu_id]},
                                                       menus={'full_menus': 'full_menus'}))
         await dao.commit()
-        submenu: SubMenuDTO = await dao.get_one(submenu_id, menu_id)
+        submenu: SubMenuDTO = await dao.get_one(submenu_id, menu_id)  # type: ignore
         return submenu
     else:
         raise HTTPException(status_code=404, detail='submenu not found')
@@ -61,7 +61,7 @@ async def service_update_submenu(dto: SubMenuDTO, menu_id: UUID, submenu_id: UUI
 
 async def service_delete_submenu(menu_id: UUID, submenu_id: UUID, dao: SubMenuDAO, redis: RedisDAO, bg: BackgroundTasks) -> dict:
     if await dao.check_exists_value_in_db(SubMenu, submenu_id):
-        dishes_id: list = await dao.get_all_dish_id(submenu_id, menu_id)
+        dishes_id: list | None = await dao.get_all_dish_id(submenu_id, menu_id)
         await dao.delete(submenu_id, menu_id)
         bg.add_task(redis.delete,
                     redis.keys.get_keys(
