@@ -4,7 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 
 from src.api.dependencies import dao_provider
 from src.api.models.requests import RQSTMenu, RQSTMenuUpdate
-from src.api.models.responses import FullMenu, PyMenu
+from src.api.models.responses import PyMenu
 from src.core.services.menu import (
     service_create_menu,
     service_delete_menu,
@@ -49,8 +49,7 @@ async def delete_menu(menu_id: UUID, bg: BackgroundTasks, dao: HolderDAO = Depen
 def setup(router: APIRouter):
     router.add_api_route('/menus', create_menu, response_model=PyMenu, methods=['POST'], status_code=201,
                          tags=['Menu'])
-    router.add_api_route('/full-menu', get_full_info_menus, response_model=list[FullMenu], status_code=200,
-                         tags=['Menu'])
+    router.add_api_route('/full-menu', get_full_info_menus, status_code=200, tags=['Menu'])
     router.add_api_route('/menus', get_list_menus, response_model=list[PyMenu], methods=['GET'], status_code=200,
                          tags=['Menu'])
     router.add_api_route('/menus/{menu_id}', get_specific_menu, response_model=PyMenu, methods=['GET'],

@@ -22,6 +22,7 @@ class PySubMenu(BaseResponse):
 
 class PyDish(BaseResponse):
     price: str = Field(examples=['14.45', ])
+    discount: int
 
     @field_validator('price')
     def validate_birth_date(cls, correct_price):

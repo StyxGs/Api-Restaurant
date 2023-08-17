@@ -2,6 +2,7 @@ from uuid import UUID
 
 from openpyxl.utils.exceptions import InvalidFileException
 from openpyxl.worksheet.worksheet import Worksheet
+from sqlalchemy.exc import IntegrityError
 
 from celery_tasks.tasks.sevices.db import add_or_update_db
 from celery_tasks.tasks.utils import get_data_admin, is_valid_uuid
@@ -40,5 +41,7 @@ async def add_db(dao: HolderDAO) -> str:
         return 'Файл поврежден'
     except IsADirectoryError:
         return 'Неверный формат файла'
+    except IntegrityError as e:
+        return f'Ошибка: {e}'
     except Exception as e:
         return f'Ошибка: {e}'

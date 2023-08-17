@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from src.api.models.responses import FullMenu
 from src.core.models.dto.menu import MenuDTO
 from src.infrastructure.db.dao.rbd.base import BaseDAO
 from src.infrastructure.db.models import Dish, SubMenu
@@ -19,7 +20,7 @@ class MenuDAO(BaseDAO):
     async def get_full_menu(self) -> list[Menu]:
         result = await self.session.scalars(
             select(Menu).options(selectinload(Menu.submenus).selectinload(SubMenu.dishes)))
-        return result.all()
+        return [FullMenu.model_validate(rt) for rt in result.all()]
 
     async def get_list(self) -> list:
         result = await self.session.execute(
